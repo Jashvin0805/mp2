@@ -44,7 +44,7 @@ function App() {
 
 
   const sorted_images = [...filtered_images].sort(function(a, b) {
-    let compare = 0
+    let compare: number
 
     if (sortBy == 'title') {
       compare = a.data[0].title.localeCompare(b.data[0].title)
