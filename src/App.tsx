@@ -113,7 +113,7 @@ function App() {
       params: {
         per_page: 100,
         page: 1,
-        orderby: 'id',
+        orderby: 'title',
         order: 'asc',
         _fields: 'slug,link,acf,parsely.meta.thumbnailUrl'
       },
