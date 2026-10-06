@@ -104,6 +104,7 @@ function App() {
   const[sortOrder, setSortOrder] = useState('ascending')
   const [usingSample, setUpUsingSample] = useState(false)
   const [filters, setFilters] = useState('all')
+  const [isLoading, setIsLoading] = useState(true)
 
   // Calling out data from the API
   useEffect(function() {
@@ -144,12 +145,14 @@ function App() {
 
         setImages(planet_images)
         setUpUsingSample(false)
+        setIsLoading(false)
       }
     }).catch(function (error) {
       if (!ignore) {
         console.error('Could not load NASA Images: ', error)
         setImages(sample_images)
         setUpUsingSample(true)
+        setIsLoading(false)
       }
     })
 
@@ -193,7 +196,7 @@ function App() {
       <section id="center">
         {/* Title Section */}
         <header>
-          <h1>NASA Exoplanet Image Directory</h1>
+          <h1>NASA Exoplanet Directory</h1>
         </header>
 
         {usingSample && (
@@ -215,7 +218,7 @@ function App() {
 
         <Routes>
           {/* Data Card */}
-          <Route path='/details/:nasaId' element={<ImageDetails images={images} />}/>
+          <Route path='/details/:nasaId' element={<ImageDetails images={images} isLoading={isLoading} />}/>
 
           {/* Search Route */}
           <Route path="/" element={
@@ -289,6 +292,9 @@ function App() {
           <Route path="/gallery" element={
             <div className='gallery-page'>
               <h2>Gallery</h2>
+              <p>
+                NASA catalog images are illustrations and may be shared by multiple exoplanets.
+              </p>
 
               <div className='gallery-filters'>
                 {['all', 'Terrestrial', 'Super Earth', 'Neptune-like', 'Gas Giant'].map(
@@ -319,7 +325,7 @@ function App() {
                         {preview?.href ? (
                           <img src={preview.href} alt={details.title} loading='lazy' />
                         ) : (
-                          <div className='search-placeholder'>
+                          <div className='image-placeholder'>
                             No preview available
                           </div>
                         )}
@@ -345,12 +351,20 @@ function App() {
 }
 
 // Data Section
-function ImageDetails({ images } : { images: NASA_Item[] }) {
+function ImageDetails({ images, isLoading } : { images: NASA_Item[]; isLoading: boolean }) {
   const { nasaId } = useParams()
 
-  const image = images.find(function (item) {
-    return item.data[0].nasa_id === nasaId
+  const curr_idx = images.findIndex(function (image) {
+    return image.data[0].nasa_id == nasaId
   })
+
+  const image = images[curr_idx]
+
+  if (isLoading) {
+    return (
+      <p role='status'>Loading planet details. Please give us a moment</p>
+    )
+  }
 
   if (!image) {
     return (
@@ -361,6 +375,12 @@ function ImageDetails({ images } : { images: NASA_Item[] }) {
     )
   }
 
+  const prev_idx = curr_idx === 0 ? images.length - 1 : curr_idx - 1
+  const next_idx = curr_idx === images.length - 1 ? 0 : curr_idx + 1
+
+  const prev_img = images[prev_idx]
+  const next_img = images[next_idx]
+
   const details = image.data[0]
   const preview = image.links?.find(function (link) {
     return link.rel == "preview"
@@ -368,35 +388,51 @@ function ImageDetails({ images } : { images: NASA_Item[] }) {
 
   return (
     <article className='image-details'>
-      <h2>{details.title}</h2>
-      <h3>Planet Identifier: {details.nasa_id}</h3>
+      <Link className='prev-button' aria-label='Previous planet' to={'/details/' + encodeURIComponent(prev_img.data[0].nasa_id)}>
+        {' < '}
+      </Link>
 
-      {preview?.href ? (
-        <img src={preview.href} alt={details.title} loading='lazy' />
-      ) : (
-        <div className='search-placeholder'>No preview available.</div>
-      )}
+      <header className='detail-heading'>
+        <h2>{details.title}</h2>
+        <h3>Planet Identifier: {details.nasa_id}</h3>
+      </header>
 
-      <p>Host Star: {details.host}</p>
-      <p>Planet Type: {details.planet_type}</p>
-      <p>Discovery Method: {details.discovery_method}</p>
-      <p>Discovery Year: {details.year}</p>
-      <p>Radius: {details.radius}</p>
-      <p>Mass: {details.mass}</p>
-      <p>Orbital Period: {details.orbital_period}</p>
-      <p>{details.description || "No description available."}</p>
+      <div className='detail-content'>
+        <div className='detail-image'>
+          {preview?.href ? (
+            <img src={preview.href} alt={details.title} loading='lazy' />
+          ) : (
+            <div className='image-placeholder'>No preview available.</div>
+          )}
+        </div>
 
-      <p>
-        <a href={details.source_url} target='_blank' rel='nonreferrer'>
+        <div className='data-info'>
+          <p>Host Star: {details.host}</p>
+          <p>Planet Type: {details.planet_type}</p>
+          <p>Discovery Method: {details.discovery_method}</p>
+          <p>Discovery Year: {details.year}</p>
+          <p>Radius: {details.radius}</p>
+          <p>Mass: {details.mass}</p>
+          <p>Orbital Period: {details.orbital_period}</p>
+          <p>{details.description || "No description available."}</p>
+        </div>
+      </div>
+
+      <p className='data-sourceUrl'>
+        <a href={details.source_url} target='_blank' rel='noreferrer'>
           View NASA Source
         </a>
       </p>
 
-      <nav aria-label='Return navigation'>
+      <nav className='detail-bottom' aria-label='Return navigation'>
         <Link to='/'>Back to Search</Link>
         {' | '}
         <Link to='/gallery'>Back to Gallery</Link>
       </nav>
+
+      <Link className='next-button' aria-label='Next planet' to={'/details/' + encodeURIComponent(next_img.data[0].nasa_id)}>
+        {' > '}
+      </Link>
     </article>
   )
 }
