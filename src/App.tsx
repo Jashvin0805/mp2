@@ -66,7 +66,7 @@ const sample_images: NASA_Item[] = [
     ],
     links: [
       {
-        href: "https://images-assets.nasa.gov/image/PIA21422/PIA21422~thumb.jpg",
+        href: "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/science/2025/09/STScI-01K1V61D55HJV2956SNSEN15GN.tif?w=2000",
         rel: "preview"
       }
     ]
@@ -89,7 +89,7 @@ const sample_images: NASA_Item[] = [
     ],
     links: [
       {
-        href: "https://images-assets.nasa.gov/image/PIA18040/PIA18040~thumb.jpg",
+        href: "https://d2pn8kiwq2w21t.cloudfront.net/original_images/jpegPIA17999.jpg",
         rel: "preview"
       }
     ]
