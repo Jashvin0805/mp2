@@ -424,12 +424,6 @@ function ImageDetails({ images, isLoading } : { images: NASA_Item[]; isLoading: 
         </a>
       </p>
 
-      <nav className='detail-bottom' aria-label='Return navigation'>
-        <Link to='/'>Back to Search</Link>
-        {' | '}
-        <Link to='/gallery'>Back to Gallery</Link>
-      </nav>
-
       <Link className='next-button' aria-label='Next planet' to={'/details/' + encodeURIComponent(next_img.data[0].nasa_id)}>
         {' > '}
       </Link>
